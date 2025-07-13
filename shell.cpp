@@ -27,6 +27,10 @@ char **get_input(char *input)
     return command ;
 }
 
+int cd(char *path)
+{
+    return chdir(path);
+}
 
 
 int main()
@@ -38,15 +42,39 @@ int main()
     int stat_loc;
     while (1)
     {
-        input = readline("unixsh>");
+        char *pwd = getcwd(NULL, 0);
+        std::string prompt = std::string(pwd) + ">";
+        input = readline(prompt.c_str());
+        free(pwd);
         command = get_input(input);
+
+
+
+        // built in commands 
+        // These are the commands that have to be executed in the current shell only\
+        // like cd, you cannot execute this in the child process and be happy about it.
+        // so we will interupt the commands in between, to get the builtin commands
+        if (command[0] && strcmp(command[0], "cd") == 0)
+        {
+            // keep in mind the error handling
+            if (cd(command[1]) < 0)
+            {
+                perror(command[1]);
+            }
+            continue;
+        }
+
 
         // fork the process 
         child = fork();
 
         if (child == 0)
         {
-            execvp(command[0],command);
+            if (execvp(command[0], command) < 0)
+            {
+                perror(command[0]);
+                exit(1);
+            }
         }   
         else 
         {
