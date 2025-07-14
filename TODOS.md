@@ -1,7 +1,7 @@
 # TODOs for Custom Shell Implementation
 
-- [ ] Implement `cd` command to change directories.
-- [ ] Implement `exit` command to terminate the shell.
+- [x] Implement `cd` command to change directories.
+- [x] Implement `exit` command to terminate the shell.
 - [x] Add support for other basic shell commands as needed.
-- [ ] Handle invalid commands gracefully.
-- [ ] Update documentation as features are added.
+- [x] Handle invalid commands gracefully.
+- [x] Update documentation as features are added.

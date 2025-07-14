@@ -5,6 +5,20 @@
 #include <string.h>
 #include <iostream>
 #include <readline/readline.h>
+#include <signal.h>
+
+
+// SIGNAL HANDLING FOR PROCESSES USIGN signal.h
+//  alias for the signal handler function 
+typedef void (*sighandler_t) (int); // good topic to study: do look it once
+
+// declaration of the signal handler function 
+sighandler_t signal(int sigint, sighandler_t handler);
+
+void signint_handler(int signo)
+{
+    std::cout<<"SIGNINT Caught!";
+}
 
 
 char **get_input(char *input)
@@ -36,6 +50,8 @@ int cd(char *path)
 int main()
 {
 
+    signal(SIGINT,SIG_IGN);
+
     char *input;
     char **command;
     pid_t child;
@@ -45,6 +61,15 @@ int main()
         char *pwd = getcwd(NULL, 0);
         std::string prompt = std::string(pwd) + ">";
         input = readline(prompt.c_str());
+
+        if (input == NULL)
+        {
+            std::cout<<"\n";
+            exit(0);
+        }
+        
+
+
         free(pwd);
         command = get_input(input);
 
@@ -63,13 +88,19 @@ int main()
             }
             continue;
         }
-
+        else if (command[0] && strcmp(command[0], "exit") == 0)
+        {
+            exit(0);
+        }
 
         // fork the process 
         child = fork();
 
         if (child == 0)
         {
+            // set the default behaivour of sigint in the child process 
+            // as the child processes also copy signal behaivours from the parent process 
+            signal(SIGINT, SIG_DFL);
             if (execvp(command[0], command) < 0)
             {
                 perror(command[0]);
